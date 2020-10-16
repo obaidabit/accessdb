@@ -24,36 +24,36 @@ client.on("message", async (data) => {
     let stm = "";
     switch (msg.path) {
         case "/sale":
-            stm = `SELECT فواتير_المبيع.معرف_البيان,(select [رقم_المادة] from [مواد_مصنعة] where [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS [product_number],(select [الاسم] from [الزبائن] where [الزبائن].[معرف_الزبون]=[فواتير_المبيع].[معرف_الزبون]) AS client, فواتير_المبيع.[التاريخ], (select [الاسم]&" "&[الصنف]&" "&[النوع] as  product from [مواد_مصنعة] where  [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS product,(select [مستهلك] from [مواد_مصنعة] where [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) as price,(select  top 1 [السعر] from [فواتير_الشراء] where [فواتير_المبيع].[معرف_المادة]=[فواتير_الشراء].[معرف_المادة] order by [فواتير_الشراء].[التاريخ] desc) as buy_price,فواتير_المبيع.[العدد]FROM فواتير_المبيع`
+            stm = `SELECT فواتير_المبيع.معرف_البيان, (select [رقم_المادة] from [مواد_مصنعة] where [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS product_number, (select [الاسم] from [الزبائن] where [الزبائن].[معرف_الزبون]=[فواتير_المبيع].[معرف_الزبون]) AS client, Format( فواتير_المبيع.[التاريخ],"dd/mm/yyyy") as [date], (select [الاسم]&" "&[الصنف]&" "&[النوع] as  product from [مواد_مصنعة] where  [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS product, (select [مستهلك] from [مواد_مصنعة] where [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS price, فواتير_المبيع.[العدد],(select last([السعر]) from [فواتير_الشراء] where [فواتير_الشراء].[معرف_المادة]=[فواتير_المبيع].[معرف_المادة]  group by [معرف_المادة]  ) as buy_price FROM فواتير_المبيع`
 			
 			if (msg.person) {
-				/*
-                if (stm.includes("where")) {
+				
+                if (stm.includes("where التاريخ") || stm.includes("where معرف_المادة")) {
                     stm += ` and معرف_الزبون in(select معرف_الزبون from الزبائن where الاسم='${msg.person}')`;
                 } else {
                     stm += ` where معرف_الزبون in(select معرف_الزبون from الزبائن where الاسم='${msg.person}')`;
-                }*/
-				stm += ` where معرف_الزبون in(select معرف_الزبون from الزبائن where الاسم='${msg.person}')`;
+                }
             }
 
             if (msg.product) {
-				/*
-                if (stm.includes("where")) {
-                    stm += ` and معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product}'))`;
+				
+                if (stm.includes("where معرف_الزبون") || stm.includes("where التاريخ")) {
+                    stm += ` and معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product.trim()}'))`;
                 } else {
-                    stm += ` where معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product}'))`;
-                }*/
-				stm += ` where معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product}'))`;
+                    stm += ` where معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product.trim()}'))`;
+                }
+				
             }
 
             if (msg.start) {
-				/*
-                if (stm.includes("where")) {
+				
+                if (stm.includes("where معرف_الزبون") || stm.includes("where معرف_المادة")) {
                     stm += ` and التاريخ between #${msg.start}# and #${msg.end}#`;
                 } else {
                     stm += ` where التاريخ between #${msg.start}# and #${msg.end}#`;
-                }*/
-				stm += ` where التاريخ between #${msg.start}# and #${msg.end}#`;
+                }
+				
+				if(msg.start === msg.end) stm+='+1';
             }
 
             console.log(stm);
@@ -61,10 +61,10 @@ client.on("message", async (data) => {
             break;
 
         case "/buy":
-            stm = "select * from فواتير_الشراء";
+            stm = `SELECT فواتير_الشراء.معرف_البيان,فواتير_الشراء.رقم_الفاتورة,Format( [فواتير_الشراء].[التاريخ],"dd/mm/yyyy") as [date],(select [الاسم] from [الموردون] where [فواتير_الشراء].[معرف_المورد]=[الموردون].[معرف_المورد]) as supplier, (select [رقم_المادة] from [مواد_مصنعة] where [فواتير_الشراء].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS product_number, (select [الاسم]&" "&[الصنف]&" "&[النوع] as  product from [مواد_مصنعة] where  [فواتير_الشراء].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS product,[العدد],[السعر],[حسم0] from فواتير_الشراء`;
 
             if (msg.person) {
-                if (stm.includes("where")) {
+                if (stm.includes("where التاريخ") || stm.includes("where معرف_المادة")) {
                     stm += ` and معرف_المورد in(select معرف_المورد from الموردون where الاسم='${msg.person}')`;
                 } else {
                     stm += ` where معرف_المورد in(select معرف_المورد from الموردون where الاسم='${msg.person}')`;
@@ -72,7 +72,7 @@ client.on("message", async (data) => {
             }
 
             if (msg.product) {
-                if (stm.includes("where")) {
+                if (stm.includes("where معرف_المورد") || stm.includes("where التاريخ")) {
                     stm += ` and معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product}'))`;
                 } else {
                     stm += ` where معرف_المادة in(select First(معرف_المادة) from مواد_مصنعة where inStr(الاسم&" "&الصنف&" "&النوع,'${msg.product}'))`;
@@ -80,7 +80,7 @@ client.on("message", async (data) => {
             }
 
             if (msg.start) {
-                if (stm.includes("where")) {
+                if (stm.includes("where معرف_المورد") || stm.includes("where معرف_المادة")) {
                     stm += ` and التاريخ between #${msg.start}# and #${msg.end}#`;
                 } else {
                     stm += ` where التاريخ between #${msg.start}# and #${msg.end}#`;

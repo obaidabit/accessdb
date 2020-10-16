@@ -9,9 +9,11 @@ async function query() {
     try {
         const d = new Date();
         const result = await connection.query(
-			`SELECT فواتير_المبيع.معرف_البيان,, (select [رقم_المادة] from [مواد_مصنعة] where [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS Expr1, (select [الاسم] from [الزبائن] where [الزبائن].[معرف_الزبون]=[فواتير_المبيع].[معرف_الزبون]) AS client, فواتير_المبيع.[التاريخ], (select [الاسم]&" "&[الصنف]&" "&[النوع] as  product from [مواد_مصنعة] where  [فواتير_المبيع].[معرف_المادة]=[مواد_مصنعة].[معرف_المادة]) AS Expr2, فواتير_المبيع.[مستهلك], فواتير_المبيع.[العدد]FROM  [فواتير_المبيع]`
+			`SELECT valueN, (select sum([القيمة]) from [دفعات] ) AS payment, (select sum([القيمة]) from [دفعات_موردين]) AS supplier_payment, (select sum([القيمة]) from [حركات] where [نوع_الحركة] in (select [معرف_نوع_الحركة] from [أنواع_الحركة] where [إدخالية]=true)) AS [input], (select sum([القيمة]) from [حركات] where [نوع_الحركة] in (select [معرف_نوع_الحركة] from [أنواع_الحركة] where [إدخالية]=false)) AS [output] FROM settings WHERE setName='CYCLE_CASH'
+`	
 		);
         console.log('done')
+		console.log(result);
 		fs.writeFile('data.json',JSON.stringify(result,null,2),err =>{
 			if(err) console.err(err);
 		});

@@ -1,1 +1,1 @@
-يمكن إرجاع سجل واحد على الأكثر بواسطة الاستعلام الفرعي هذا.
+Unspecified error, SQL may contain reserved words and symbols, surround it with brackets []
