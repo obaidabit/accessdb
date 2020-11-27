@@ -1,9 +1,10 @@
 const ADODB = require("node-adodb");
-const fs = require('fs')
+const log = require('./logging');
 
 const connection = ADODB.open(
     "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=alwan.accdb;"
 );
+log('debug.log','Connected to database');
 
 async function query(stm) {
     if (!stm) {
@@ -13,10 +14,7 @@ async function query(stm) {
         const result = await connection.query(stm);
         return JSON.stringify(result);
     } catch (error) {
-        console.error(error);
-		fs.writeFile('logs.txt',error.process.message,(err)=>{
-			if (err) console.log(err)
-		})
+        log('error.log',__filename.slice(__dirname.length + 1)+" at "+new Error(error).stack);
     }
 }
 

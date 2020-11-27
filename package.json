@@ -1,29 +1,29 @@
 {
-  "name": "color",
-  "version": "0.1.0",
-  "description": "Connect color accounting system to server",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "keywords": [
-    "color"
-  ],
-  "author": "obeda bitar",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.17.1",
-    "node-adodb": "^5.0.3",
-    "socket.io-client": "^2.3.0",
-    "ws": "^7.3.1"
-  },
-  "devDependencies": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/obedabit/accessdb.git"
-  },
-  "bugs": {
-    "url": "https://github.com/obedabit/accessdb/issues"
-  },
-  "homepage": "https://github.com/obedabit/accessdb#readme"
+    "name": "color",
+    "version": "1.0.0",
+    "description": "Connect color accounting system to server",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "keywords": [
+        "color"
+    ],
+    "author": "obeda bitar",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.1",
+        "node-adodb": "^5.0.3",
+        "socket.io-client": "^2.3.0",
+        "ws": "^7.3.1"
+    },
+    "devDependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/obedabit/accessdb.git"
+    },
+    "bugs": {
+        "url": "https://github.com/obedabit/accessdb/issues"
+    },
+    "homepage": "https://github.com/obedabit/accessdb#readme"
 }
